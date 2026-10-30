@@ -27,9 +27,20 @@ database.connect();
 app.use(express.json());
 app.use(cookieParser());
 
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://studynotion-eduplat.vercel.app",
+];
+
 app.use(
   cors({
-    origin: "https://studynotion-eduplat.vercel.app",
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
