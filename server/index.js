@@ -27,9 +27,14 @@ database.connect();
 app.use(express.json());
 app.use(cookieParser());
 
+// Extra origins can be added on Render via CORS_ORIGINS (comma-separated, no trailing slash)
 const allowedOrigins = [
   "http://localhost:3000",
   "https://studynotion-eduplat.vercel.app",
+  ...(process.env.CORS_ORIGINS || "")
+    .split(",")
+    .map((o) => o.trim().replace(/\/$/, ""))
+    .filter(Boolean),
 ];
 
 app.use(
@@ -38,7 +43,9 @@ app.use(
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
-        callback(new Error("Not allowed by CORS"));
+        // Log which origin was blocked so it can be added to CORS_ORIGINS
+        console.warn("CORS blocked origin:", origin);
+        callback(null, false);
       }
     },
     credentials: true,
