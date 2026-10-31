@@ -72,10 +72,23 @@ export function signUp(
         throw new Error(response.data.message)
       }
       toast.success("Signup Successful")
-      navigate("/login")
+
+      // Logged in straight after signup (same as login flow)
+      const { token, user } = response.data
+      if (token && user) {
+        dispatch(setToken(token))
+        const userImage = user.image
+          ? user.image
+          : `https://api.dicebear.com/5.x/initials/svg?seed=${user.firstName} ${user.lastName}`
+        dispatch(setUser({ ...user, image: userImage }))
+        localStorage.setItem("token", JSON.stringify(token))
+        navigate("/dashboard/my-profile")
+      } else {
+        navigate("/login")
+      }
     } catch (error) {
       console.log("SIGNUP API ERROR............", error)
-      toast.error("Signup Failed")
+      toast.error(error?.response?.data?.message || "Signup Failed")
       navigate("/signup")
     }
     dispatch(setLoading(false))
