@@ -3,7 +3,7 @@ import { FaArrowRight } from "react-icons/fa"
 import { Link } from "react-router-dom"
 
 // Image and Video Import
-import Banner from "../assets/Images/banner.mp4"
+import Banner from "../assets/Images/banner-optimized.mp4"
 // Component Imports
 import Footer from "../components/Common/Footer"
 import ReviewSlider from "../components/Common/ReviewSlider"
@@ -61,6 +61,8 @@ function Home() {
             muted
             loop
             autoPlay
+            playsInline
+            preload="metadata"
           >
             <source src={Banner} type="video/mp4" />
           </video>

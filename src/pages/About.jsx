@@ -1,6 +1,6 @@
 import React from "react"
 
-import FoundingStory from "../assets/Images/FoundingStory.png"
+import FoundingStory from "../assets/Images/FoundingStory.webp"
 import BannerImage1 from "../assets/Images/aboutus1.webp"
 import BannerImage2 from "../assets/Images/aboutus2.webp"
 import BannerImage3 from "../assets/Images/aboutus3.webp"
@@ -72,6 +72,7 @@ const About = () => {
               <img
                 src={FoundingStory}
                 alt=""
+                loading="lazy" decoding="async"
                 className="shadow-[0_0_20px_0] shadow-[#FC6767]"
               />
             </div>

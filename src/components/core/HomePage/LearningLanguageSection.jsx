@@ -1,7 +1,7 @@
 import React from 'react'
 import HighlightText from './HighlightText'
 import CTAButton from "../../../components/core/HomePage/Button";
-import Know_your_progress from "../../../assets/Images/Know_your_progress.png";
+import Know_your_progress from "../../../assets/Images/Know_your_progress.webp";
 import Compare_with_others from "../../../assets/Images/Compare_with_others.svg";
 import Plan_your_lessons from "../../../assets/Images/Plan_your_lessons.svg";
 
@@ -20,16 +20,19 @@ const LearningLanguageSection = () => {
               <img
                 src={Know_your_progress}
                 alt=""
+                loading="lazy" decoding="async"
                 className="object-contain  lg:-mr-32 "
               />
               <img
                 src={Compare_with_others}
                 alt=""
+                loading="lazy" decoding="async"
                 className="object-contain lg:-mb-10 lg:-mt-0 -mt-12"
               />
               <img
                 src={Plan_your_lessons}
                 alt=""
+                loading="lazy" decoding="async"
                 className="object-contain  lg:-ml-36 lg:-mt-5 -mt-16"
               />
             </div>

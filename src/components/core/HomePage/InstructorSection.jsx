@@ -1,7 +1,7 @@
 import React from 'react'
 import CTAButton from "../../../components/core/HomePage/Button";
 import { FaArrowRight } from "react-icons/fa";
-import Instructor from "../../../assets/Images/Instructor.png";
+import Instructor from "../../../assets/Images/Instructor.webp";
 import HighlightText from './HighlightText';
 
 const InstructorSection = () => {
@@ -12,6 +12,7 @@ const InstructorSection = () => {
             <img
               src={Instructor}
               alt=""
+              loading="lazy" decoding="async"
               className="shadow-white shadow-[-20px_-20px_0_0]"
             />
           </div>
