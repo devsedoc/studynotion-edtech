@@ -70,7 +70,18 @@ const userSchema = new mongoose.Schema(
 
     // Add timestamps for when the document is created and last modified
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    // Never expose password hash or reset token in API responses
+    toJSON: {
+      transform: (doc, ret) => {
+        delete ret.password
+        delete ret.token
+        delete ret.resetPasswordExpires
+        return ret
+      },
+    },
+  }
 )
 
 // Export the Mongoose model for the user schema, using the name "user"

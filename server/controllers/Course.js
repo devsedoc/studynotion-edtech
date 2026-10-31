@@ -142,6 +142,14 @@ exports.editCourse = async (req, res) => {
       return res.status(404).json({ error: "Course not found" })
     }
 
+    // Only the course owner can edit it
+    if (course.instructor.toString() !== req.user.id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "You can only edit your own course",
+      })
+    }
+
     // If Thumbnail Image is found, update it
     if (req.files) {
       console.log("thumbnail update")
@@ -154,8 +162,19 @@ exports.editCourse = async (req, res) => {
     }
 
     // Update only the fields that are present in the request body
+    // Only these fields can be changed from the request body
+    const EDITABLE_FIELDS = [
+      "courseName",
+      "courseDescription",
+      "whatYouWillLearn",
+      "price",
+      "tag",
+      "category",
+      "instructions",
+      "status",
+    ]
     for (const key in updates) {
-      if (updates.hasOwnProperty(key)) {
+      if (updates.hasOwnProperty(key) && EDITABLE_FIELDS.includes(key)) {
         if (key === "tag" || key === "instructions") {
           course[key] = JSON.parse(updates[key])
         } else {
@@ -379,6 +398,19 @@ exports.getFullCourseDetails = async (req, res) => {
       })
     }
 
+    // Full content (video URLs) only for enrolled students or the course owner
+    const isOwner =
+      courseDetails.instructor?._id?.toString() === userId.toString()
+    const isEnrolled = courseDetails.studentsEnroled.some(
+      (id) => id.toString() === userId.toString()
+    )
+    if (!isOwner && !isEnrolled) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not enrolled in this course",
+      })
+    }
+
     // if (courseDetails.status === "Draft") {
     //   return res.status(403).json({
     //     success: false,
@@ -448,6 +480,14 @@ exports.deleteCourse = async (req, res) => {
     const course = await Course.findById(courseId)
     if (!course) {
       return res.status(404).json({ message: "Course not found" })
+    }
+
+    // Only the course owner can delete it
+    if (course.instructor.toString() !== req.user.id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "You can only delete your own course",
+      })
     }
 
     // Unenroll students from the course

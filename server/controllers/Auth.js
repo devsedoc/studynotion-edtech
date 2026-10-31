@@ -6,6 +6,7 @@ const otpGenerator = require("otp-generator")
 const mailSender = require("../utils/mailSender")
 const { passwordUpdated } = require("../mail/templates/passwordUpdate")
 const Profile = require("../models/Profile")
+const emailVerificationTemplate = require("../mail/templates/emailVerificationTemplate")
 require("dotenv").config()
 
 // Signup Controller for Registering USers
@@ -46,6 +47,14 @@ exports.signup = async (req, res) => {
       })
     }
 
+    // Only Student / Instructor can self-register (never Admin)
+    if (!["Student", "Instructor"].includes(accountType)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid account type",
+      })
+    }
+
     // Check if user already exists
     const existingUser = await User.findOne({ email })
     if (existingUser) {
@@ -57,7 +66,6 @@ exports.signup = async (req, res) => {
 
     // Find the most recent OTP for the email
     const response = await OTP.find({ email }).sort({ createdAt: -1 }).limit(1)
-    console.log(response)
     if (response.length === 0) {
       // OTP not found for the email
       return res.status(400).json({
@@ -197,27 +205,30 @@ exports.sendotp = async (req, res) => {
       })
     }
 
-    var otp = otpGenerator.generate(6, {
+    // OTPs are looked up by email (latest one), so they don't need to be globally unique
+    const otp = otpGenerator.generate(6, {
       upperCaseAlphabets: false,
       lowerCaseAlphabets: false,
       specialChars: false,
     })
-    const result = await OTP.findOne({ otp: otp })
-    console.log("Result is Generate OTP Func")
-    console.log("OTP", otp)
-    console.log("Result", result)
-    while (result) {
-      otp = otpGenerator.generate(6, {
-        upperCaseAlphabets: false,
+    const otpDoc = await OTP.create({ email, otp })
+
+    try {
+      await mailSender(email, "Verification Email", emailVerificationTemplate(otp))
+    } catch (mailError) {
+      // Remove the unusable OTP so a retry starts clean
+      await OTP.deleteOne({ _id: otpDoc._id }).catch(() => {})
+      console.error("OTP email failed:", mailError.message)
+      return res.status(502).json({
+        success: false,
+        message: "Could not send OTP email. Please try again in a minute.",
       })
     }
-    const otpPayload = { email, otp }
-    const otpBody = await OTP.create(otpPayload)
-    console.log("OTP Body", otpBody)
+
+    // Never send the OTP back to the client or log it
     res.status(200).json({
       success: true,
       message: `OTP Sent Successfully`,
-      otp,
     })
   } catch (error) {
     console.log(error.message)
